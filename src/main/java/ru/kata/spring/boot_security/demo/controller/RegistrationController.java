@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
@@ -20,7 +21,7 @@ public class RegistrationController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/")
+    @GetMapping("/news")
     public String news(Model model) {
         model.addAttribute("userForm", new User());
 
@@ -61,10 +62,46 @@ public class RegistrationController {
         return "redirect:/";
     }
 
-    /*@GetMapping("/test")
-    public String test(Model model) {
-        model.addAttribute("userForm", new User());
 
-        return "test";
-    }*/
+
+    @GetMapping("/") // Или /users, или /test - как вам удобнее
+    public String listUsers(Model model) {
+        model.addAttribute("users", userService.allUsers()); // Проверьте имя атрибута "userss"
+        return "users"; // Имя вашего JSP файла для списка
+    }
+
+    // Страница добавления нового пользователя
+    @GetMapping("/add")
+    public String showAddForm(Model model) {
+        model.addAttribute("user", new User()); // Имя атрибута "user"
+        return "user-info"; // Имя вашего JSP файла с формой (должно быть user-info.jsp)
+    }
+
+    @PostMapping("/save")
+    public String saveOrUpdateUser(@ModelAttribute("user") User user, Model model) {
+        if (user.getId() == null) { // Создание нового
+            if (!userService.saveUser(user)) {
+                model.addAttribute("usernameError", "User already exists");
+                return "user-info";
+            }
+        } else { // Редактирование - просто перенаправляем (без реального сохранения пока)
+            // TODO: Реализовать userService.updateUser()
+        }
+        return "redirect:/";
+    }
+
+
+    @GetMapping("/edit")
+    public String editUserForm(@RequestParam("id") Long id, Model model) {
+        User user = userService.findUserById(id);
+        model.addAttribute("user", user);
+        return "user-info";
+    }
+
+
+    @PostMapping("/delete")
+    public String deleteUser(@RequestParam("id") Long id) {
+        userService.deleteUser(id);
+        return "redirect:/";
+    }
 }

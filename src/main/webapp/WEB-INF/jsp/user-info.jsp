@@ -1,67 +1,51 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Form input</title>
+    <title>User Form</title>
     <style>
-        a {
-            background-color: lightgreen;
-            color: black;
-            padding: 0.1em 1em;
-            text-decoration: none;
-            text-transform: uppercase;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 50%;
-            margin: 20px auto;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: center;
-        }
-        th { background-color: #f2f2f2; }
-        .text-field {
-            margin-bottom: 1rem;
-        }
-        text {
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-        input {
-            display: block;
-            width: 100%;
-            height: calc(2.25rem + 2px);
-            padding: 0.375rem 0.75rem;
-            font-family: inherit;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: #212529;
-            background-color: #fff;
-            background-clip: padding-box;
-            border: 1px solid #bdbdbd;
-            border-radius: 0.25rem;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-
+        input { display: block; width: 300px; margin-bottom: 10px; padding: 5px; }
+        .btn { background: lightgreen; padding: 5px 20px; border: none; cursor: pointer; }
     </style>
 </head>
-
 <body>
-<h2 th:text="${user.getId() == null} ? 'Add User' : 'Edit User'"></h2>
-<form th:action="@{/save}" th:object="${user}" method="post">
-    <input type="hidden" th:field="*{id}"/>
 
-    Name: <input type="text" th:field="*{firstName}"/><br/><br/>
-    Last Name: <input type="text" th:field="*{lastName}"/><br/><br/>
-    Email: <input type="text" th:field="*{email}"/><br/><br/>
+<h2>${user.id == null ? "Add User" : "Edit User"}</h2>
 
-    <input type="submit" value="Save"/>
+<form action="/save" method="post">
+    <!-- Скрытое поле ID -->
+    <input type="hidden" name="id" value="${user.id}">
+
+    <!-- Поля ввода с предзаполненными значениями через EL-выражения -->
+    Name:
+    <input type="text" name="firstName" value="${user.firstName}" required>
+
+    Last Name:
+    <input type="text" name="lastName" value="${user.lastName}" required>
+
+    Email:
+    <input type="text" name="email" value="${user.email}" required>
+
+    <!-- Если в SecurityConfig НЕ отключен CSRF, добавьте токен вручную -->
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+    <!-- Добавьте эти строки в user-info.jsp или registration.jsp -->
+    <!-- user-info.jsp или registration.jsp -->
+    <form action="/save" method="post">
+        <input type="hidden" name="id" value="${user.id}">
+
+        Username:
+        <input type="text" name="username" value="${user.username}" required>
+    Password:
+    <input type="password" name="password" value="${user.password}" required>
+    <br>
+    Confirm Password:
+    <input type="password" name="passwordConfirm" value="${user.passwordConfirm}" required>
+    <br>
+    <button type="submit" class="btn">Save</button>
 </form>
-<br/>
-<a th:href="@{/}">Back to list</a>
+
+<br>
+<a href="/">Back to list</a>
 </body>
 </html>
