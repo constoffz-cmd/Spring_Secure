@@ -64,9 +64,15 @@ public class RegistrationController {
 
 
 
-    @GetMapping("/") // Или /users, или /test - как вам удобнее
+    /*@GetMapping("/user_admin") // Или /users, или /test - как вам удобнее
     public String listUsers(Model model) {
         model.addAttribute("users", userService.allUsers()); // Проверьте имя атрибута "userss"
+        return "users"; // Имя вашего JSP файла для списка
+    }*/
+
+    @GetMapping("/") // Или /users, или /test - как вам удобнее
+    public String listUsers(@RequestParam("id") Long id, Model model) {
+        model.addAttribute("users", userService.findUserById(id)); // Проверьте имя атрибута "userss"
         return "users"; // Имя вашего JSP файла для списка
     }
 
