@@ -19,22 +19,24 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final SuccessUserHandler successUserHandler;
-    private final UserService userService; // Внедряем ваш сервис
+    private final UserDetailsService userDetailsService;
 
     // Используем конструктор для внедрения зависимостей
-    public WebSecurityConfig(SuccessUserHandler successUserHandler, UserService userService) {
+    public WebSecurityConfig(SuccessUserHandler successUserHandler, UserDetailsService userDetailsService) {
         this.successUserHandler = successUserHandler;
-        this.userService = userService;
+        this.userDetailsService = userDetailsService;
+
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                // Если вы используете простые формы в JSP, на время отладки отключите CSRF,
-                // чтобы он не блокировал POST-запросы:
+
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/", "/index", "/registration", "/test").permitAll()
+                .antMatchers( "/registration", "/users", "/admin/**").hasRole("ADMIN")
+                .antMatchers("/", "/index", "/news").hasAnyRole("USER", "ADMIN")
+
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().successHandler(successUserHandler)
@@ -52,7 +54,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         // Указываем Spring использовать ВАШ сервис и ВАШ кодировщик
-        auth.userDetailsService(userService)
+        auth.userDetailsService(userDetailsService)
                 .passwordEncoder(bCryptPasswordEncoder());
     }
 }

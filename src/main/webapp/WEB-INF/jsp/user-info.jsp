@@ -5,47 +5,60 @@
 <head>
     <title>User Form</title>
     <style>
+        label { display: block; margin-top: 10px; font-weight: bold; }
         input { display: block; width: 300px; margin-bottom: 10px; padding: 5px; }
-        .btn { background: lightgreen; padding: 5px 20px; border: none; cursor: pointer; }
+        .btn { background: lightgreen; padding: 10px 20px; border: none; cursor: pointer; margin-top: 20px; }
+        .role-group { margin-top: 15px; border: 1px solid #ccc; padding: 10px; width: 300px; }
     </style>
 </head>
 <body>
 
-<h2>${user.id == null ? "Add User" : "Edit User"}</h2>
+<h2>${user.id == null ? "Add New User" : "Edit User"}</h2>
 
-<form action="/save" method="post">
-    <!-- Скрытое поле ID -->
+<%-- ОДНА общая форма для всех полей --%>
+<form action="/admin/save" method="post">
+
+    <%-- Скрытое поле ID (Критически важно для Edit!) --%>
     <input type="hidden" name="id" value="${user.id}">
 
-    <!-- Поля ввода с предзаполненными значениями через EL-выражения -->
-    Name:
+    <label>Username (Login):</label>
+    <input type="text" name="username" value="${user.username}" required>
+
+    <label>First Name:</label>
     <input type="text" name="firstName" value="${user.firstName}" required>
 
-    Last Name:
+    <label>Last Name:</label>
     <input type="text" name="lastName" value="${user.lastName}" required>
 
-    Email:
-    <input type="text" name="email" value="${user.email}" required>
+    <label>Email:</label>
+    <input type="email" name="email" value="${user.email}" required>
 
-    <!-- Если в SecurityConfig НЕ отключен CSRF, добавьте токен вручную -->
+    <label>Password:</label>
+    <%-- При редактировании пароль не обязателен (required убираем) --%>
+    <input type="password" name="password" ${user.id == null ? "required" : ""}>
+
+    <div class="role-group">
+        <label>Roles:</label>
+        <c:forEach items="${allRoles}" var="role">
+            <div>
+                <input type="checkbox" name="selectedRoles" value="${role.id}"
+                <c:forEach items="${user.roles}" var="userRole">
+                       <c:if test="${userRole.id == role.id}">checked</c:if>
+                </c:forEach>
+                >
+                <span>${role.name}</span>
+            </div>
+        </c:forEach>
+    </div>
+
+    <%-- CSRF Токен --%>
     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-    <!-- Добавьте эти строки в user-info.jsp или registration.jsp -->
-    <!-- user-info.jsp или registration.jsp -->
-    <form action="/save" method="post">
-        <input type="hidden" name="id" value="${user.id}">
 
-        Username:
-        <input type="text" name="username" value="${user.username}" required>
-    Password:
-    <input type="password" name="password" value="${user.password}" required>
-    <br>
-    Confirm Password:
-    <input type="password" name="passwordConfirm" value="${user.passwordConfirm}" required>
-    <br>
-    <button type="submit" class="btn">Save</button>
+    <button type="submit" class="btn">Save User</button>
 </form>
 
 <br>
-<a href="/">Back to list</a>
+<a href="/admin/users">Back to list</a>
+
 </body>
 </html>

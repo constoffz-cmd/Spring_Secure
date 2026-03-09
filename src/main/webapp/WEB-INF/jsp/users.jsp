@@ -28,9 +28,9 @@
             <td>${user.lastName}</td>
             <td>${user.email}</td>
             <td>
-                <a href="/edit?id=${user.id}">Edit</a>
+                <a href="/admin/edit?id=${user.id}">Edit</a>
                 |
-                <form action="/delete" method="post" style="display:inline">
+                <form action="/admin/delete" method="post" style="display:inline">
                     <input type="hidden" name="id" value="${user.id}"/>
                         <%-- Добавляем CSRF токен, иначе кнопка удаления не сработает --%>
                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
@@ -42,6 +42,6 @@
 </table>
 <br/>
 <%-- Кнопка добавления --%>
-<a href="/add" class="add-btn">Add New User</a>
+<a href="/admin/add" class="add-btn">Add New User</a>
 </body>
 </html>

@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.service;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +15,6 @@ import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 
-import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Collections;
 import java.util.List;
@@ -23,10 +23,10 @@ import java.util.logging.Logger;
 
 @Service
 @Transactional(readOnly = true) // Для всех методов чтения
-public class UserService implements UserDetailsService {
+public class UserService implements UserDetailsService, UserServiceInter {
 
-    @PersistenceContext
-    private EntityManager em;
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(UserService.class);
+
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -46,18 +46,19 @@ public class UserService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("Loading user by username: " + username); // Отладка
+        log.info("Loading user by username: " + username);
 
         User user = userRepository.findByUsername(username);
 
         if (user == null) {
-            System.out.println("User not found: " + username); // Отладка
+            log.info("User not found: " + username);
+
             throw new UsernameNotFoundException("User not found: " + username);
         }
 
-        System.out.println("User found: " + user.getUsername()); // Отладка
-        System.out.println("User roles: " + user.getRoles()); // Отладка
-        System.out.println("Password hash: " + user.getPassword()); // Отладка (осторожно!)
+        log.info("User found: " + user.getUsername());
+        log.info("User roles: " + user.getRoles());
+        log.info("Password hash: " + user.getPassword());
 
         return user;
     }
@@ -103,6 +104,21 @@ public class UserService implements UserDetailsService {
         return true;
     }
 
+    @Override
+    public List<User> listUsers() {
+        return List.of();
+    }
+
+    @Override
+    public User getUserById(Long Id) {
+        return null;
+    }
+
+    @Override
+    public void updateUser(User user) {
+
+    }
+
     @Transactional
     public boolean deleteUser(Long userId) {
         if (userRepository.findById(userId).isPresent()) {
@@ -112,12 +128,7 @@ public class UserService implements UserDetailsService {
         return false;
     }
 
-    @Transactional(readOnly = true)
-    public List<User> usergtList(Long idMin) {
-        return em.createQuery("SELECT u FROM User u WHERE u.id > :paramId", User.class)
-                .setParameter("paramId", idMin)
-                .getResultList();
-    }
+
 
     @Transactional(readOnly = true)
     public User findByUsername(String username) {

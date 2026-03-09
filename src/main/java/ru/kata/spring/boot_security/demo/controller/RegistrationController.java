@@ -37,9 +37,9 @@ public class RegistrationController {
 
     @GetMapping("/registration")
     public String registration(Model model) {
-        model.addAttribute("userForm", new User());
+        //model.addAttribute("userForm", new User());
 
-        return "registration";
+        return "user-info";
     }
 
     @PostMapping("/registration")
@@ -64,50 +64,5 @@ public class RegistrationController {
 
 
 
-    /*@GetMapping("/user_admin") // Или /users, или /test - как вам удобнее
-    public String listUsers(Model model) {
-        model.addAttribute("users", userService.allUsers()); // Проверьте имя атрибута "userss"
-        return "users"; // Имя вашего JSP файла для списка
-    }*/
 
-    @GetMapping("/") // Или /users, или /test - как вам удобнее
-    public String listUsers(@RequestParam("id") Long id, Model model) {
-        model.addAttribute("users", userService.findUserById(id)); // Проверьте имя атрибута "userss"
-        return "users"; // Имя вашего JSP файла для списка
-    }
-
-    // Страница добавления нового пользователя
-    @GetMapping("/add")
-    public String showAddForm(Model model) {
-        model.addAttribute("user", new User()); // Имя атрибута "user"
-        return "user-info"; // Имя вашего JSP файла с формой (должно быть user-info.jsp)
-    }
-
-    @PostMapping("/save")
-    public String saveOrUpdateUser(@ModelAttribute("user") User user, Model model) {
-        if (user.getId() == null) { // Создание нового
-            if (!userService.saveUser(user)) {
-                model.addAttribute("usernameError", "User already exists");
-                return "user-info";
-            }
-        } else { // Редактирование - просто перенаправляем (без реального сохранения пока)
-            // TODO: Реализовать userService.updateUser()
-        }
-        return "redirect:/";
-    }
-
-
-    @GetMapping("/edit")
-    public String editUserForm(@RequestParam("id") Long id, Model model) {
-        User user = userService.findUserById(id);
-        model.addAttribute("user", user);
-        return "user-info";
-    }
-
-
-    @PostMapping("/delete")
-    public String deleteUser(@RequestParam("id") Long id) {
-        userService.deleteUser(id);
-        return "redirect:/";
-    }
 }

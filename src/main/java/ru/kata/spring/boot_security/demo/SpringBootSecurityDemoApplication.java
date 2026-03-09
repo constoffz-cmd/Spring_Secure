@@ -11,6 +11,7 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.logging.Logger;
 
 
 @SpringBootApplication
@@ -18,6 +19,7 @@ public class SpringBootSecurityDemoApplication implements CommandLineRunner {
 
 	private final UserService userService;
 	private final RoleRepository roleRepository;
+	private Logger logger = Logger.getLogger(SpringBootSecurityDemoApplication.class.getName());
 
 	@Autowired
 	public SpringBootSecurityDemoApplication(UserService userService, RoleRepository roleRepository) {
@@ -34,6 +36,7 @@ public class SpringBootSecurityDemoApplication implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 
 		// Проверяем, есть ли уже админ (используем ваш метод findByUsername)
+
 		if (userService.findByUsername("admin2") == null) {
 			User admin = new User();
 			admin.setUsername("admin2");
@@ -49,9 +52,9 @@ public class SpringBootSecurityDemoApplication implements CommandLineRunner {
 			// Метод saveUser из вашего сервиса захеширует пароль и даст ROLE_USER
 			userService.saveUser(admin);
 
-			System.out.println("----------------------------------------------");
-			System.out.println("ТЕСТОВЫЙ ПОЛЬЗОВАТЕЛЬ СОЗДАН: admin / admin");
-			System.out.println("----------------------------------------------");
+			logger.info("ТЕСТОВЫЙ ПОЛЬЗОВАТЕЛЬ СОЗДАН: admin / admin");
+
+
 		}
 	}
 }
