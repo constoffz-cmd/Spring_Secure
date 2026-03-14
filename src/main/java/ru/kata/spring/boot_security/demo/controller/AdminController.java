@@ -6,80 +6,82 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.service.RoleService;
+import ru.kata.spring.boot_security.demo.service.RoleServiceInter;
 import ru.kata.spring.boot_security.demo.service.UserService;
+import ru.kata.spring.boot_security.demo.service.UserServiceInter;
+
+import java.util.List;
 
 @Controller
+@RequestMapping("/admin")
 public class AdminController {
 
-    private UserService userService;
+    private final UserServiceInter userService;
+    private final RoleServiceInter roleService;
+
     @Autowired
-    public AdminController(UserService userService) {
+    public AdminController(UserServiceInter userService, RoleServiceInter roleService) {
         this.userService = userService;
+        this.roleService = roleService;
     }
 
-    @GetMapping("/admin")
-    public String userList(Model model) {
-        model.addAttribute("allUsers", userService.allUsers());
+
+    @GetMapping(value = {"", "/users"})
+    public String listUsers(Model model) {
+        model.addAttribute("users", userService.allUsers());
+        model.addAttribute("role", roleService.getAllRoles());
         return "users";
     }
 
-    @GetMapping("/")
-    public String mainPage(Model model) {
-        model.addAttribute("allUsers", userService.allUsers());
-        return "index";
-    }
 
-    @PostMapping("/admin")
-    public String  deleteUser(@RequestParam(required = true, defaultValue = "" ) Long userId,
-                              @RequestParam(required = true, defaultValue = "" ) String action,
-                              Model model) {
-        if (action.equals("delete")){
-            userService.deleteUser(userId);
-        }
-        return "users";
-    }
-
-    // Страница добавления нового пользователя
-    @GetMapping("/admin/add")
+    @GetMapping("/add")
     public String showAddForm(Model model) {
-        model.addAttribute("user", new User()); // Имя атрибута "user"
-        return "user-info"; // Имя вашего JSP файла с формой (должно быть user-info.jsp)
+        model.addAttribute("user", new User());
+        model.addAttribute("allRoles", roleService.getAllRoles()); // Отправляем роли на фронт
+        return "user-info";
     }
 
-    @PostMapping("/admin/save")
-    public String saveOrUpdateUser(@ModelAttribute("user") User user, Model model) {
-        if (user.getId() == null) { // Создание нового
+
+    @PostMapping("/save")
+    public String saveOrUpdateUser(@ModelAttribute("user") User user,
+                                   @RequestParam(value = "selectedRoles", required = false) List<Long> roleIds,
+                                   Model model) {
+
+        if (roleIds != null) {
+            user.setRoles(roleService.findRolesByIds(roleIds));
+        }
+
+        if (user.getId() == null) {
             if (!userService.saveUser(user)) {
                 model.addAttribute("usernameError", "User already exists");
+                model.addAttribute("allRoles", roleService.getAllRoles());
                 return "user-info";
             }
         } else {
             userService.updateUser(user);
         }
-        //return "users";
-        return "users";
+        return "redirect:/admin/users";
     }
 
 
-    @GetMapping("/admin/edit")
+    @GetMapping("/edit")
     public String editUserForm(@RequestParam("id") Long id, Model model) {
         User user = userService.findUserById(id);
         model.addAttribute("user", user);
-        return "user-info_update";
+        model.addAttribute("allRoles", roleService.getAllRoles());
+        return "user-info";
     }
 
 
-    @PostMapping("/admin/delete")
+    @PostMapping("/delete")
     public String deleteUser(@RequestParam("id") Long id) {
         userService.deleteUser(id);
-        return "users";
+        return "redirect:/admin/users";
     }
 
-    @GetMapping("/admin/users")
-    public String listUsers(Model model) {
-        // Получаем всех пользователей, а не одного по ID
-        model.addAttribute("users", userService.allUsers());
-        return "users";
+    @GetMapping("/registration")
+    public String registration(Model model) {
+        return "redirect:/admin/add";
     }
-
 }

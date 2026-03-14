@@ -27,11 +27,9 @@ public class UserService implements UserDetailsService, UserServiceInter {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(UserService.class);
 
-
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
 
 
     @Autowired
@@ -47,7 +45,6 @@ public class UserService implements UserDetailsService, UserServiceInter {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("Loading user by username: " + username);
-
         User user = userRepository.findByUsername(username);
 
         if (user == null) {
@@ -62,18 +59,20 @@ public class UserService implements UserDetailsService, UserServiceInter {
         return user;
     }
 
+    @Override
     @Transactional(readOnly = true)
     public User findUserById(Long userId) {
         Optional<User> userFromDb = userRepository.findById(userId);
         return userFromDb.orElse(null); // Возвращаем null вместо нового User
     }
 
-
+    @Override
     @Transactional(readOnly = true)
     public List<User> allUsers() {
         return userRepository.findAll();
     }
 
+    @Override
     @Transactional
     public boolean saveUser(User user) {
         Logger log = Logger.getLogger(UserService.class.getName());
@@ -100,7 +99,7 @@ public class UserService implements UserDetailsService, UserServiceInter {
         return true;
     }
 
-
+    @Override
     @Transactional
     public boolean deleteUser(Long userId) {
         if (userRepository.findById(userId).isPresent()) {
@@ -110,7 +109,7 @@ public class UserService implements UserDetailsService, UserServiceInter {
         return false;
     }
 
-
+    @Override
     @Transactional(readOnly = true)
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);

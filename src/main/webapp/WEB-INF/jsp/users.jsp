@@ -18,15 +18,29 @@
         <th>Name</th>
         <th>Last Name</th>
         <th>Email</th>
+        <th>Role</th>
         <th>Actions</th>
     </tr>
     <%-- В контроллере проверьте имя атрибута: "users" или "userss" --%>
     <c:forEach items="${users}" var="user">
+
         <tr>
             <td>${user.id}</td>
             <td>${user.firstName}</td>
             <td>${user.lastName}</td>
             <td>${user.email}</td>
+            <td> <div class="role-group">
+                <c:forEach items="${role}" var="role">
+                    <div>
+                        <c:forEach items="${user.roles}" var="userRole">
+                               <c:if test="${userRole.id == role.id}">${role.name}</c:if>
+                        </c:forEach>
+
+
+                    </div>
+                </c:forEach>
+            </div>
+            </td>
             <td>
                 <a href="/admin/edit?id=${user.id}">Edit</a>
                 |
